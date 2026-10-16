@@ -1,0 +1,537 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#073b4c">
+<title>لجنة الاختيار للخدمة المدنية - ولاية البحر الأحمر | نظام الحضور والانصراف</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.57.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="https://unpkg.com/html5-qrcode@2.3.8"></script>
+<style>
+:root{--navy:#0c3139;--p:#0f6b6e;--soft:#e4f1f1;--bg:#f3f7f7;--ink:#10292c;--mut:#62797b;--line:#dce7e7;--ok:#1f9d6b;--warn:#d98a1f;--bad:#c94a3f}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:Cairo,Tahoma,Arial,sans-serif}
+button,input,select{font:inherit}
+header{position:sticky;top:0;z-index:3;background:white;border-bottom:1px solid var(--line);padding:12px;padding-top:calc(12px + env(safe-area-inset-top,0px));display:flex;align-items:center;gap:10px}
+header h1{flex:1;text-align:center;font-size:1.05rem;margin:0}
+.ib{border:1px solid var(--line);background:white;border-radius:12px;padding:8px 12px;color:var(--ink)}
+main{max-width:680px;margin:auto;padding:14px}
+body.mgr main{padding-bottom:96px}
+.hero{background:linear-gradient(135deg,var(--navy),var(--p));color:white;border-radius:22px;padding:20px;box-shadow:0 8px 20px #0c313922}
+.hero h2{margin:0}.hero p{margin:3px 0 14px;opacity:.85;font-size:.9rem}
+.nums{display:grid;grid-template-columns:repeat(4,1fr);text-align:center}
+.nums b{display:block;font-size:1.7rem}.nums span{font-size:.72rem}
+.nums div+div{border-right:1px solid #ffffff40}
+.green{color:#7ee2b8}.red{color:#ffb4aa}.amber{color:#ffd9a0}
+.card{background:white;border:1px solid var(--line);border-radius:18px;padding:16px;margin-top:14px}
+.clock{text-align:center}.time{font-size:2.25rem;font-weight:800;direction:ltr}
+.muted{color:var(--mut);font-size:.9rem}
+button{cursor:pointer}
+.primary,.big{border:0;border-radius:13px;background:var(--p);color:white;padding:12px 16px;font-weight:700}
+.big{width:100%;background:var(--ok);font-size:1.1rem;margin-top:10px}
+button:disabled{opacity:.6}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #0f6b6e66;outline-offset:2px}
+h3{font-size:1rem;margin:20px 0 10px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0}
+.grid.three{grid-template-columns:repeat(3,1fr)}
+.tile{border:1px solid var(--line);background:white;border-radius:15px;padding:13px 8px;font-weight:700;color:var(--ink);text-align:center;font-size:.9rem}
+.tile b{display:block;color:var(--p);font-size:1.5rem}
+input,select{display:block;width:100%;padding:12px;border:1px solid var(--line);border-radius:12px;margin-bottom:10px;background:white;color:var(--ink)}
+.row{display:flex;gap:8px}.row>*{min-width:0;flex:1}
+.msg{font-size:.9rem;color:var(--bad);overflow-wrap:anywhere;min-height:1.3em}.msg.ok{color:var(--ok)}
+.hide{display:none!important}
+.person{display:flex;align-items:center;gap:10px;background:white;border:1px solid var(--line);border-radius:13px;padding:10px;margin-bottom:8px}
+.avatar{display:grid;place-items:center;width:40px;height:40px;border-radius:50%;background:var(--soft);color:var(--p);font-weight:bold;flex:none}
+.details{flex:1;min-width:0}.details b,.details small{display:block;overflow-wrap:anywhere}.details small{color:var(--mut)}
+.badge{font-size:.78rem;border-radius:20px;background:var(--soft);color:var(--p);padding:4px 8px;white-space:nowrap}
+.badge.warn{background:#fbeccd;color:#8a5a0b}.badge.bad{background:#f8dcd8;color:#8e2f26}
+.scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.88rem}
+th,td{text-align:right;padding:9px 6px;border-bottom:1px solid var(--line);white-space:nowrap}
+th{color:var(--mut);font-weight:600}
+td.num,th.num{text-align:center}
+.empty{text-align:center;color:var(--mut);padding:12px}
+#qr{display:flex;justify-content:center;padding:15px}
+
+/* login */
+#login{max-width:560px;margin:0 auto;padding:22px 18px 28px;min-height:100dvh;display:flex;flex-direction:column;justify-content:center;position:relative;overflow:hidden;background:radial-gradient(circle at 90% 5%,#e1f0f1 0,transparent 35%),linear-gradient(160deg,#fbfdfd,#f1f7f7)}
+#login:before{content:'';position:absolute;top:-90px;left:-90px;width:210px;height:210px;border-radius:0 0 100% 0;background:linear-gradient(135deg,#073b4c,#167d83);z-index:0}
+#login:after{content:'';position:absolute;bottom:-90px;right:-70px;width:230px;height:170px;border-radius:100% 0 0 0;background:linear-gradient(135deg,#167d83,#073b4c);z-index:0}
+#login>*{position:relative;z-index:1}
+#login .login-brand{text-align:center;padding:18px 4px 22px}
+#login .brand-mark{width:94px;height:94px;border-radius:50%;margin:0 auto 14px;display:grid;place-items:center;background:white;border:3px solid #d9e9eb;box-shadow:0 10px 24px #0c313922;color:#07546a;font-size:2.6rem}
+#login .login-brand h1{font-size:1.6rem;line-height:1.5;margin:0;color:#073b4c;font-weight:800}
+#login .login-brand p{margin:4px 0 0;color:#547783;font-size:.98rem}
+#login .login-card{border:1px solid #e1ebed;border-radius:26px;padding:25px 20px;background:#ffffffed;box-shadow:0 16px 40px #17465012;margin:0}
+#login .welcome{text-align:center;margin-bottom:22px}
+#login .welcome h2{margin:0;color:#073b4c;font-size:1.5rem}
+#login .welcome p{margin:4px 0 0;color:#66828d}
+#login .login-field{position:relative;margin-bottom:14px}
+#login .login-field input{height:58px;border:1.5px solid #c8dce2;border-radius:17px;padding:12px 52px 12px 48px;margin:0;background:#fbfdfd;font-size:1rem}
+#login .field-icon{position:absolute;right:17px;top:50%;transform:translateY(-50%);font-size:1.2rem;color:#527581;pointer-events:none}
+#login .toggle-pass{position:absolute;left:10px;top:50%;transform:translateY(-50%);border:0;background:transparent;color:#527581;padding:8px;font-size:1.1rem}
+#login #lbtn{width:100%;min-height:58px;border-radius:17px;background:linear-gradient(110deg,#07566a,#08777a);box-shadow:0 8px 18px #07566a24;font-size:1.08rem;margin-top:4px}
+#login #lbtn:disabled{opacity:.65}
+#login .internal-note{text-align:center;color:#527581;margin:19px 0 0;font-size:.88rem}
+#login .login-benefits{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;text-align:center;margin-top:24px;color:#527581;font-size:.78rem}
+#login .login-benefits div+div{border-right:1px solid #cbdde1}
+#login .login-benefits b{display:block;font-size:1.35rem;font-weight:400;margin-bottom:4px}
+#login .msg{margin:8px 0}
+
+/* manager home */
+#manager-actions{margin-top:18px}
+.manage-title{font-size:1.45rem;margin:0 0 4px;font-weight:800}
+.manage-subtitle{color:#8b989f;margin:0 0 22px;font-size:.95rem}
+.quick-title{font-size:1.05rem;font-weight:600;margin:0 0 14px}
+.quick-list{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.quick-btn{min-height:84px;border:2px solid #526473;border-radius:22px;background:transparent;color:#142f45;font-weight:700;font-size:.95rem;padding:12px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px}
+.quick-btn span{font-size:1.4rem}
+.quick-btn.red-btn{border-color:#d16d75;color:#bd5059}
+.quick-btn.wide{grid-column:1/-1}
+.manager-search{margin-top:22px!important;border-radius:18px!important;padding:16px!important}
+.offday{background:#fbeccd;color:#8a5a0b;border-radius:12px;padding:8px 12px;margin-top:12px;font-size:.88rem}
+
+/* bottom nav */
+#bottom-nav{position:fixed;bottom:0;right:0;left:0;z-index:4;background:white;border-top:1px solid var(--line);display:grid;grid-template-columns:repeat(4,1fr);padding:6px 6px calc(6px + env(safe-area-inset-bottom,0px))}
+#bottom-nav button{border:0;background:none;color:var(--mut);padding:6px 2px;font-size:.78rem;font-weight:600;display:flex;flex-direction:column;align-items:center;gap:2px;border-radius:12px}
+#bottom-nav button span{font-size:1.25rem}
+#bottom-nav button.on{color:var(--p);background:var(--soft)}
+
+@media print{header,#bottom-nav,.noprint,button{display:none!important}body{background:white}.card{border:0}main{max-width:none;padding:0}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style></head>
+<body>
+<script>
+const CFG={
+ URL:'https://umudzptcfdyjaglkuvwi.supabase.co',
+ KEY:'sb_publishable_U-2lAg0C5I30MCm5ddiHyg_IkkAiilh',
+ DOMAIN:'attendance.local',
+ START:'08:00',          // بداية الدوام
+ GRACE:0,                // دقائق السماح قبل احتساب التأخير
+ OFF:[5,6],              // الإجازة الأسبوعية: 0=الأحد ... 5=الجمعة 6=السبت
+ REFRESH:60,             // تحديث لوحة المدير تلقائيًا كل (ثانية)
+ PROFILES:'profiles',ATT:'attendance',
+ P:{id:'id',name:'full_name',user:'username',role:'role',dept:'department'},
+ A:{user:'employee_id',in:'check_in',out:'check_out',date:'work_date'},
+ ROLES:{admin:'مدير النظام',it:'مهندس IT',it_engineer:'مهندس IT',employee:'موظف'},
+ FUNC:'create-employee'
+};
+</script>
+
+<div id="login" class="hide">
+ <div class="login-brand">
+  <div class="brand-mark" aria-hidden="true">◷<span style="font-size:1.25rem;margin-right:-8px">♟</span></div>
+  <h1>لجنة الاختيار للخدمة المدنية</h1>
+  <p>ولاية البحر الأحمر · نظام الحضور والانصراف</p>
+ </div>
+ <div class="login-card">
+  <div class="welcome"><h2>مرحباً بك</h2><p>قم بتسجيل الدخول للمتابعة</p></div>
+  <div class="login-field"><span class="field-icon">♙</span><input id="lu" placeholder="اسم المستخدم" autocomplete="username" aria-label="اسم المستخدم"></div>
+  <div class="login-field"><span class="field-icon">▣</span><input id="lp" type="password" placeholder="كلمة المرور" autocomplete="current-password" aria-label="كلمة المرور"><button type="button" class="toggle-pass" id="toggle-pass" aria-label="إظهار كلمة المرور">◉</button></div>
+  <div id="lmsg" class="msg" role="alert"></div>
+  <button id="lbtn" class="primary">↪ &nbsp; تسجيل الدخول</button>
+  <p class="internal-note">ـــــــــــــ &nbsp; للاستخدام الداخلي فقط &nbsp; ـــــــــــــ</p>
+ </div>
+ <div class="login-benefits"><div><b>♧</b>أمان وخصوصية</div><div><b>◷</b>دقة في التسجيل</div><div><b>♧</b>فريق عمل واحد</div></div>
+</div>
+
+<div id="app" class="hide">
+<header><button id="back" class="ib hide" aria-label="رجوع">➜</button><h1 id="title">لوحة التحكم</h1><button id="logout" class="ib">خروج</button></header>
+<main>
+
+<section id="v-home">
+ <div id="manager-summary" class="hero hide">
+  <h2>ملخص اليوم</h2><p id="sum-sub">متابعة حضور وانصراف الموظفين</p>
+  <div class="nums">
+   <div><b id="present" class="green">0</b><span>الحاضرون الآن</span></div>
+   <div><b id="left">0</b><span>انصرفوا</span></div>
+   <div><b id="absent" class="red">0</b><span>لم يسجلوا</span></div>
+   <div><b id="latecount" class="amber">0</b><span>متأخرون</span></div>
+  </div>
+  <div id="offday" class="offday hide">اليوم إجازة أسبوعية، لا يُحتسب غياب.</div>
+ </div>
+
+ <div class="card clock" id="personal-clock">
+  <b id="hello"></b><div id="time" class="time"></div><div id="date" class="muted"></div>
+  <div id="status" style="margin-top:8px;color:var(--p);font-weight:700"></div>
+  <button id="scan-btn" class="big" style="background:#073b4c;color:#fff">▦ مسح الباركود لتسجيل الحضور والانصراف</button>
+ </div>
+
+ <div id="scanner-wrap" class="card hide" style="text-align:center">
+  <p>وجّهي كاميرا الهاتف نحو رمز QR الموجود عند الاستقبال</p>
+  <div id="qr-reader" style="width:100%;max-width:420px;margin:auto"></div>
+  <button id="stop-scan" class="ib" style="margin-top:12px">إغلاق الكاميرا</button>
+ </div>
+ <div id="amsg" class="msg" role="status" style="margin-top:10px;text-align:center"></div>
+
+ <div id="manager-actions" class="hide">
+  <h2 class="manage-title">إدارة الموظفين</h2>
+  <p class="manage-subtitle">تابع حالة الحضور وسجلات الموظفين من مكان واحد</p>
+  <h3 class="quick-title">إجراءات سريعة</h3>
+  <div class="quick-list">
+   <button class="quick-btn" data-view="add"><span>♟＋</span>إضافة موظف</button>
+   <button class="quick-btn" id="manager-scan"><span>▦</span>مسح الباركود</button>
+   <button class="quick-btn" data-view="qr"><span>▦</span>باركود الحضور للطباعة</button>
+   <button class="quick-btn red-btn" data-view="log"><span>▤</span>سجل الحضور اليومي</button>
+   <button class="quick-btn" data-view="report"><span>♙⌕</span>تقرير موظف</button>
+   <button class="quick-btn" data-view="month"><span>▦▤</span>التقرير الشهري الشامل</button>
+  </div>
+  <input id="search" placeholder="⌕  البحث عن موظف" class="manager-search" aria-label="بحث عن موظف">
+  <h3>🟢 الحاضرون الآن</h3><div id="present-list"></div>
+  <h3>انصرفوا</h3><div id="left-list"></div>
+  <h3>لم يسجلوا الحضور</h3><div id="missing-list"></div>
+ </div>
+
+ <div id="my-records" class="hide">
+  <h3>ملخص هذا الشهر</h3>
+  <div class="grid three"><div class="tile">أيام الحضور<b id="my-days">0</b></div><div class="tile">أيام التأخير<b id="my-late">0</b></div><div class="tile">الساعات<b id="my-hours">0</b></div></div>
+  <h3>سجلاتي</h3>
+  <div class="card" style="margin-top:0"><div class="scroll"><table><thead><tr><th>التاريخ</th><th>حضور</th><th>انصراف</th><th>المدة</th></tr></thead><tbody id="mine-table"></tbody></table></div></div>
+ </div>
+</section>
+
+<section id="v-add" class="hide"><div class="card">
+ <h3 style="margin-top:0">إضافة حساب موظف</h3>
+ <input id="emp-name" placeholder="الاسم الكامل"><input id="emp-dept" placeholder="القسم (اختياري)">
+ <input id="emp-user" placeholder="اسم المستخدم بالإنجليزية" style="direction:ltr;text-align:right" autocapitalize="off">
+ <input id="emp-pass" type="password" placeholder="كلمة المرور (6 أحرف على الأقل)">
+ <select id="emp-role"></select>
+ <div id="emp-msg" class="msg"></div>
+ <button id="create-emp" class="primary" style="width:100%">إضافة الموظف</button>
+</div></section>
+
+<section id="v-qr" class="hide"><div class="card" style="text-align:center">
+ <h3 style="margin-top:0">رمز QR لتسجيل الحضور</h3>
+ <p class="muted">اطبعي الرمز وضعيه عند مدخل مقر العمل.</p>
+ <div id="qr"></div>
+ <div id="qr-url" class="muted" style="direction:ltr;overflow-wrap:anywhere"></div>
+ <div id="qr-msg" class="msg"></div>
+ <div class="row noprint"><button class="primary" onclick="print()">طباعة</button><button id="rotate-qr" class="ib">تغيير الرمز</button></div>
+</div></section>
+
+<section id="v-employees" class="hide">
+ <input id="emp-search" placeholder="⌕  البحث في القائمة" aria-label="بحث">
+ <div id="delete-msg" class="msg"></div><div id="employees-list"></div>
+</section>
+
+<section id="v-log" class="hide"><div class="card">
+ <div class="row noprint"><input type="date" id="log-date"><select id="log-type"><option value="day">الحضور اليومي</option><option value="late">التأخير</option><option value="abs">الغياب</option></select></div>
+ <div class="row noprint"><button class="ib" onclick="print()">طباعة</button><button class="ib" data-csv="t-log" data-name="سجل-الحضور">تصدير Excel</button></div>
+ <h3 id="log-heading"></h3>
+ <div class="scroll"><table id="t-log"><thead id="log-head"></thead><tbody id="log-body"></tbody></table></div>
+</div></section>
+
+<section id="v-report" class="hide"><div class="card">
+ <div class="row noprint"><select id="report-person"></select><input type="month" id="report-month"></div>
+ <div class="row noprint"><button class="ib" onclick="print()">طباعة</button><button class="ib" data-csv="t-report" data-name="تقرير-موظف">تصدير Excel</button></div>
+ <h3 id="report-heading"></h3>
+ <div class="grid three"><div class="tile">أيام الحضور<b id="days">0</b></div><div class="tile">أيام التأخير<b id="late-days">0</b></div><div class="tile">إجمالي الساعات<b id="hours">0</b></div></div>
+ <div class="scroll"><table id="t-report"><thead><tr><th>التاريخ</th><th>حضور</th><th>انصراف</th><th>المدة</th></tr></thead><tbody id="report-body"></tbody></table></div>
+</div></section>
+
+<section id="v-month" class="hide"><div class="card">
+ <div class="row noprint"><input type="month" id="month-pick"></div>
+ <div class="row noprint"><button class="ib" onclick="print()">طباعة</button><button class="ib" data-csv="t-month" data-name="التقرير-الشهري">تصدير Excel</button></div>
+ <h3 id="month-heading"></h3>
+ <p id="month-note" class="muted"></p>
+ <div class="scroll"><table id="t-month"><thead><tr><th>الموظف</th><th>القسم</th><th class="num">الحضور</th><th class="num">التأخير</th><th class="num">الغياب</th><th class="num">الساعات</th></tr></thead><tbody id="month-body"></tbody></table></div>
+</div></section>
+
+</main>
+<nav id="bottom-nav" class="hide noprint" aria-label="التنقل">
+ <button data-view="home"><span>⌂</span>الرئيسية</button>
+ <button data-view="log"><span>▤</span>السجل</button>
+ <button data-view="month"><span>▦</span>التقرير</button>
+ <button data-view="employees"><span>♙</span>الموظفون</button>
+</nav>
+</div>
+
+<script>
+const sb=supabase.createClient(CFG.URL,CFG.KEY),$=id=>document.getElementById(id),P=CFG.P,A=CFG.A;
+let me=null,isManager=false,people=[],todayRows=[],timer=null;
+
+/* ---------- helpers ---------- */
+const pad=n=>String(n).padStart(2,'0');
+const today=(d=new Date())=>`${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const time=t=>t?new Date(t).toLocaleTimeString('ar-EG-u-nu-latn',{hour:'2-digit',minute:'2-digit'}):'—';
+const isToday=t=>today(new Date(t))===today();
+// مدة العمل: السجل المفتوح من يوم سابق (نسي الانصراف) لا يُحتسب
+const minutes=(a,b)=>{if(!a)return 0;if(!b&&!isToday(a))return 0;return Math.max(0,Math.floor(((b?new Date(b):new Date())-new Date(a))/60000))};
+const duration=(a,b)=>{if(!a)return '—';if(!b&&!isToday(a))return '—';let n=minutes(a,b);return `${Math.floor(n/60)}س ${n%60}د`};
+const startMin=()=>{let [h,m]=CFG.START.split(':');return Number(h)*60+Number(m)};
+const lateBy=t=>{if(!t)return 0;let d=new Date(t),diff=d.getHours()*60+d.getMinutes()-startMin();return diff>CFG.GRACE?diff:0};
+const late=t=>lateBy(t)>0;
+const personName=id=>(people.find(p=>p[P.id]===id)||{})[P.name]||'—';
+const lateBadge=t=>late(t)?` <span class="badge warn">تأخر ${lateBy(t)}د</span>`:'';
+const noOutBadge=r=>(!r[A.out]&&!isToday(r[A.in]))?' <span class="badge bad">بدون انصراف</span>':'';
+const recordRow=r=>`<tr><td>${esc(r[A.date])}</td><td>${time(r[A.in])}${lateBadge(r[A.in])}</td><td>${time(r[A.out])}${noOutBadge(r)}</td><td>${duration(r[A.in],r[A.out])}</td></tr>`;
+const isOff=d=>CFG.OFF.includes(d.getDay());
+const showMsg=(el,text,ok)=>{el.className='msg'+(ok?' ok':'');el.textContent=text};
+const monthEnd=month=>{let [y,m]=month.split('-').map(Number);return today(new Date(y,m,1))};
+async function fetchAll(build){let out=[],from=0;for(;;){let {data,error}=await build().range(from,from+999);if(error)throw error;out=out.concat(data||[]);if(!data||data.length<1000)break;from+=1000}return out}
+
+/* ---------- Excel (CSV) export ---------- */
+function exportTable(id,name){
+ let t=$(id),rows=[...t.querySelectorAll('tr')].map(tr=>[...tr.children].map(c=>'"'+c.innerText.replace(/\s+/g,' ').trim().replace(/"/g,'""')+'"').join(','));
+ let blob=new Blob(['\uFEFF'+rows.join('\r\n')],{type:'text/csv;charset=utf-8'}),a=document.createElement('a');
+ a.href=URL.createObjectURL(blob);a.download=name+'-'+today()+'.csv';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+document.addEventListener('click',e=>{let b=e.target.closest('[data-csv]');if(b)exportTable(b.dataset.csv,b.dataset.name)});
+
+/* ---------- QR link opened from phone camera ---------- */
+try{let k=new URLSearchParams(location.search).get('k');if(k){localStorage.setItem('qrk',k);history.replaceState(null,'',location.pathname)}}catch(e){}
+
+/* ---------- auth ---------- */
+async function boot(){let {data}=await sb.auth.getSession();if(data.session)await enter(data.session.user);else $('login').classList.remove('hide')}
+$('toggle-pass').onclick=()=>{let f=$('lp'),show=f.type==='password';f.type=show?'text':'password';$('toggle-pass').textContent=show?'⊘':'◉';$('toggle-pass').setAttribute('aria-label',show?'إخفاء كلمة المرور':'إظهار كلمة المرور')};
+$('lp').addEventListener('keydown',e=>{if(e.key==='Enter')$('lbtn').click()});
+$('lu').addEventListener('keydown',e=>{if(e.key==='Enter')$('lp').focus()});
+$('lbtn').onclick=async()=>{
+ let u=$('lu').value.trim().toLowerCase(),p=$('lp').value;$('lmsg').textContent='';
+ if(!u||!p){$('lmsg').textContent='أدخلي اسم المستخدم وكلمة المرور';return}
+ $('lbtn').disabled=true;
+ let {data,error}=await sb.auth.signInWithPassword({email:u+'@'+CFG.DOMAIN,password:p});
+ $('lbtn').disabled=false;
+ if(error){$('lmsg').textContent='تعذر الدخول: اسم المستخدم أو كلمة المرور غير صحيحة';return}
+ $('login').classList.add('hide');await enter(data.user)
+};
+$('logout').onclick=async()=>{await sb.auth.signOut();location.reload()};
+
+async function enter(user){
+ let {data,error}=await sb.from(CFG.PROFILES).select('*').eq(P.id,user.id).single();
+ if(error||!data){await sb.auth.signOut();$('login').classList.remove('hide');$('lmsg').textContent='لا يوجد ملف شخصي لهذا الحساب';return}
+ me=data;isManager=['admin','it','it_engineer'].includes(me[P.role]);
+ $('hello').textContent='مرحبًا '+(me[P.name]||me[P.user]||'');
+ $('app').classList.remove('hide');
+ document.body.classList.toggle('mgr',isManager);$('bottom-nav').classList.toggle('hide',!isManager);
+ let r=await sb.from(CFG.PROFILES).select('*').order(P.name);
+ people=isManager?(r.data||[]):[me];
+ navigate('home');
+ // تسجيل تلقائي لو فُتح رابط الباركود بكاميرا الهاتف
+ let k=null;try{k=localStorage.getItem('qrk');localStorage.removeItem('qrk')}catch(e){}
+ if(k&&confirm('تم فتح رابط الحضور. تسجيل الحضور أو الانصراف الآن؟'))await record(k);
+ clearInterval(timer);if(isManager)timer=setInterval(()=>{if(!$('v-home').classList.contains('hide')&&document.visibilityState==='visible')loadHome()},CFG.REFRESH*1000);
+}
+
+/* ---------- navigation ---------- */
+const views={home:'لوحة التحكم',add:'إضافة موظف',qr:'رمز QR',log:'سجل الحضور',report:'تقرير موظف',month:'التقرير الشهري',employees:'قائمة الموظفين'};
+function navigate(v){
+ if(!isManager&&v!=='home')v='home';
+ stopScan();
+ Object.keys(views).forEach(k=>$('v-'+k).classList.toggle('hide',k!==v));
+ $('title').textContent=v==='home'?(isManager?'لوحة تحكم '+(me[P.role]==='admin'?'المدير':'IT'):'حضوري'):views[v];
+ $('back').classList.toggle('hide',v==='home');
+ document.querySelectorAll('#bottom-nav button').forEach(b=>b.classList.toggle('on',b.dataset.view===v));
+ window.scrollTo(0,0);
+ ({home:loadHome,add:loadAdd,qr:loadQR,log:loadLog,report:loadReport,month:loadMonth,employees:loadEmployees})[v]();
+}
+$('back').onclick=()=>navigate('home');
+document.addEventListener('click',e=>{let b=e.target.closest('[data-view]');if(b)navigate(b.dataset.view)});
+
+/* ---------- home ---------- */
+async function loadHome(){
+ let q=sb.from(CFG.ATT).select('*').eq(A.date,today()).order(A.in,{ascending:false});
+ if(!isManager)q=q.eq(A.user,me[P.id]);
+ let {data,error}=await q;todayRows=data||[];
+ if(error)showMsg($('amsg'),'تعذر تحميل السجلات: '+error.message);
+ let mine=todayRows.filter(r=>r[A.user]===me[P.id]),open=mine.find(r=>!r[A.out]);
+ $('scan-btn').textContent=open?'▦ امسحي الباركود لتسجيل الانصراف':'▦ امسحي الباركود لتسجيل الحضور';
+ $('status').textContent=open?'أنتِ حاضرة منذ '+time(open[A.in])+' — امسحي الباركود عند الانصراف':(mine.length?'تم تسجيل الحضور والانصراف اليوم':'لم تسجلي الحضور اليوم — امسحي الباركود لتسجيل الحضور');
+ $('manager-summary').classList.toggle('hide',!isManager);
+ $('manager-actions').classList.toggle('hide',!isManager);
+ $('personal-clock').classList.toggle('hide',isManager);
+ $('my-records').classList.toggle('hide',isManager);
+ if(isManager)renderLists();else loadMine();
+}
+async function loadMine(){
+ let m=today().slice(0,7),r=await sb.from(CFG.ATT).select('*').eq(A.user,me[P.id]).gte(A.date,m+'-01').lt(A.date,monthEnd(m)).order(A.in,{ascending:false});
+ let rows=r.data||[],days={};rows.forEach(x=>{if(!days[x[A.date]])days[x[A.date]]=x});
+ // أول حضور في كل يوم يحدد التأخير (السجلات مرتبة تنازليًا فنأخذ الأقدم)
+ let first={};rows.forEach(x=>{if(!first[x[A.date]]||new Date(x[A.in])<new Date(first[x[A.date]][A.in]))first[x[A.date]]=x});
+ $('my-days').textContent=Object.keys(first).length;
+ $('my-late').textContent=Object.values(first).filter(x=>late(x[A.in])).length;
+ $('my-hours').textContent=Math.round(rows.reduce((n,x)=>n+minutes(x[A.in],x[A.out]),0)/6)/10;
+ $('mine-table').innerHTML=rows.map(recordRow).join('')||'<tr><td colspan="4">لا توجد سجلات هذا الشهر</td></tr>';
+}
+function personCard(p,extra=''){return `<div class="person"><div class="avatar">${esc((p[P.name]||'?')[0])}</div><div class="details"><b>${esc(p[P.name]||'—')}</b><small>${esc(p[P.dept]||CFG.ROLES[p[P.role]]||'')}</small></div>${extra}</div>`}
+function renderLists(){
+ let by={};todayRows.forEach(r=>(by[r[A.user]]=by[r[A.user]]||[]).push(r));
+ let employees=people.filter(p=>p[P.role]==='employee'),present=[],left=[],missing=[],lateN=0;
+ employees.forEach(p=>{let rs=by[p[P.id]];if(!rs){missing.push(p);return}
+  let firstIn=rs.reduce((a,r)=>!a||new Date(r[A.in])<new Date(a)?r[A.in]:a,null);if(late(firstIn))lateN++;
+  if(rs.some(r=>!r[A.out]))present.push(p);else left.push(p)});
+ let off=isOff(new Date());
+ $('present').textContent=present.length;$('left').textContent=left.length;$('absent').textContent=off?0:missing.length;$('latecount').textContent=lateN;
+ $('sum-sub').textContent='من أصل '+employees.length+' موظف';
+ $('offday').classList.toggle('hide',!off);
+ let q=$('search').value.trim().toLowerCase(),filter=arr=>arr.filter(p=>(p[P.name]||'').toLowerCase().includes(q)||(p[P.user]||'').toLowerCase().includes(q));
+ let lt=p=>{let rs=by[p[P.id]]||[];let f=rs.reduce((a,r)=>!a||new Date(r[A.in])<new Date(a)?r[A.in]:a,null);return f?`<span class="badge">${time(f)}</span>`+lateBadge(f):''};
+ $('present-list').innerHTML=filter(present).map(p=>personCard(p,lt(p)+' <span class="badge">حاضر</span>')).join('')||'<div class="empty">لا يوجد</div>';
+ $('left-list').innerHTML=filter(left).map(p=>personCard(p,lt(p)+' <span class="badge">انصرف</span>')).join('')||'<div class="empty">لا يوجد</div>';
+ $('missing-list').innerHTML=filter(missing).map(p=>personCard(p,'<span class="badge '+(off?'':'bad')+'">'+(off?'إجازة':'لم يحضر')+'</span>')).join('')||'<div class="empty">لا يوجد</div>';
+}
+$('search').oninput=renderLists;
+
+/* ---------- QR scanning ---------- */
+let qrScanner=null,scanBusy=false;
+async function stopScan(){
+ if(qrScanner){try{await qrScanner.stop()}catch(_){}try{await qrScanner.clear()}catch(_){}qrScanner=null}
+ $('scanner-wrap').classList.add('hide');scanBusy=false;
+}
+async function record(token){
+ showMsg($('amsg'),'جاري تسجيل الحضور أو الانصراف...');
+ const {error}=await sb.rpc('record_attendance',{p_token:token});
+ if(error)showMsg($('amsg'),error.message.includes('invalid_qr')?'رمز QR غير صحيح أو انتهت صلاحيته. استخدمي الرمز الحالي.':'تعذر تسجيل العملية: '+error.message);
+ else showMsg($('amsg'),'تم تسجيل الحضور/الانصراف بنجاح ✓ '+time(new Date()),true);
+ if(!$('v-home').classList.contains('hide'))await loadHome();
+}
+async function startScan(){
+ if(!me)return;
+ if(typeof Html5Qrcode==='undefined'){showMsg($('amsg'),'تعذر تحميل قارئ الباركود. تأكدي من اتصال الإنترنت ثم أعيدي فتح التطبيق.');return}
+ await stopScan();
+ $('scanner-wrap').classList.remove('hide');
+ showMsg($('amsg'),'اسمحي للمتصفح باستخدام الكاميرا لمسح الرمز.');
+ try{
+  qrScanner=new Html5Qrcode('qr-reader');scanBusy=false;
+  await qrScanner.start({facingMode:'environment'},{fps:10,qrbox:{width:230,height:230},aspectRatio:1.0},async text=>{
+   if(scanBusy)return;scanBusy=true;
+   let token='';
+   try{token=new URL(text,location.href).searchParams.get('k')||''}catch(_){}
+   if(!token&&!text.includes('://'))token=text.trim();
+   if(!token){showMsg($('amsg'),'هذا الرمز غير صالح. امسحي رمز الحضور الموجود عند الاستقبال.');scanBusy=false;return}
+   await stopScan();await record(token);
+  },()=>{});
+ }catch(err){
+  $('scanner-wrap').classList.add('hide');qrScanner=null;scanBusy=false;
+  showMsg($('amsg'),'تعذر فتح الكاميرا. اسمحي بإذن الكاميرا وتأكدي أن الموقع يعمل عبر HTTPS. '+(err?.message||''));
+ }
+}
+$('scan-btn').onclick=startScan;$('manager-scan').onclick=startScan;$('stop-scan').onclick=()=>{stopScan();showMsg($('amsg'),'')};
+
+/* ---------- add employee ---------- */
+function loadAdd(){
+ $('emp-role').innerHTML=Object.entries(CFG.ROLES).filter(([k])=>['employee','it'].includes(k)||(me[P.role]==='admin'&&k==='admin')).map(([k,v])=>`<option value="${k}">${v}</option>`).join('');
+ $('create-emp').disabled=me[P.role]!=='admin';
+ showMsg($('emp-msg'),me[P.role]==='admin'?'':'إضافة الموظفين متاحة لمدير النظام فقط');
+}
+$('create-emp').onclick=async()=>{
+ let m=$('emp-msg');showMsg(m,'');
+ if(me[P.role]!=='admin'){showMsg(m,'إضافة الموظفين متاحة لمدير النظام فقط');return}
+ let body={name:$('emp-name').value.trim(),dept:$('emp-dept').value.trim(),username:$('emp-user').value.trim().toLowerCase(),password:$('emp-pass').value,role:$('emp-role').value};
+ if(!body.name||!body.username||body.password.length<6){showMsg(m,'أكملي البيانات (كلمة المرور 6 أحرف على الأقل)');return}
+ if(!/^[a-z0-9._-]+$/.test(body.username)){showMsg(m,'اسم المستخدم: حروف إنجليزية وأرقام فقط بدون مسافات');return}
+ $('create-emp').disabled=true;
+ let {data,error}=await sb.functions.invoke(CFG.FUNC,{body});
+ $('create-emp').disabled=false;
+ if(error){let d=error.message||'حدث خطأ غير معروف';try{if(error.context&&typeof error.context.json==='function'){let r=await error.context.json();d=r.error||d}}catch(_){}showMsg(m,'تعذر إنشاء الموظف: '+d);return}
+ if(data?.error){showMsg(m,'تعذر إنشاء الموظف: '+data.error);return}
+ showMsg(m,'تمت إضافة الموظف بنجاح ✓',true);
+ ['emp-name','emp-dept','emp-user','emp-pass'].forEach(id=>$(id).value='');
+ let r=await sb.from(CFG.PROFILES).select('*').order(P.name);if(!r.error)people=r.data||people;
+};
+
+/* ---------- employees list ---------- */
+function renderEmployees(){
+ let admin=me[P.role]==='admin',q=$('emp-search').value.trim().toLowerCase();
+ let list=people.filter(p=>!q||(p[P.name]||'').toLowerCase().includes(q)||(p[P.user]||'').toLowerCase().includes(q)||(p[P.dept]||'').toLowerCase().includes(q));
+ $('employees-list').innerHTML=list.map(p=>personCard(p,`<span class="badge">${esc(CFG.ROLES[p[P.role]]||p[P.role])}</span>`+(p[P.id]!==me[P.id]&&(admin||!['admin','it','it_engineer'].includes(p[P.role]))?` <button class="ib" data-delete="${esc(p[P.id])}" aria-label="حذف ${esc(p[P.name])}">حذف</button>`:''))).join('')||'<div class="empty">لا يوجد موظفون</div>';
+}
+async function loadEmployees(){
+ let {data,error}=await sb.from(CFG.PROFILES).select('*').order(P.name);
+ if(error){$('employees-list').textContent='تعذر تحميل الموظفين: '+error.message;return}
+ people=data||[];renderEmployees();
+}
+$('emp-search').oninput=renderEmployees;
+document.addEventListener('click',async e=>{
+ let b=e.target.closest('[data-delete]');if(!b)return;
+ let p=people.find(x=>x[P.id]===b.dataset.delete);
+ if(!p||!confirm('حذف حساب '+p[P.name]+' نهائيًا مع سجلات حضوره؟'))return;
+ let {data,error}=await sb.functions.invoke('delete-employee',{body:{id:p[P.id]}});
+ if(error){let d=error.message||'تعذر الحذف';try{if(error.context&&typeof error.context.json==='function'){let r=await error.context.json();d=r.error||d}}catch(_){}showMsg($('delete-msg'),'تعذر الحذف: '+d);return}
+ if(data?.error){showMsg($('delete-msg'),data.error);return}
+ showMsg($('delete-msg'),'تم حذف الموظف',true);await loadEmployees();
+});
+
+/* ---------- QR page ---------- */
+async function loadQR(){
+ $('qr-msg').textContent='';$('rotate-qr').classList.toggle('hide',!isManager);
+ let {data,error}=await sb.rpc('get_qr_token');
+ if(error){$('qr-msg').textContent='تعذر تحميل الرمز: '+error.message;return}
+ drawQR(data);
+}
+function drawQR(token){
+ if(!token){$('qr-msg').textContent='لم يصل رمز QR من قاعدة البيانات';return}
+ let url=location.origin+location.pathname+'?k='+encodeURIComponent(token);
+ $('qr').innerHTML='';new QRCode($('qr'),{text:url,width:230,height:230});$('qr-url').textContent=url;
+}
+$('rotate-qr').onclick=async()=>{
+ if(!confirm('تغيير الرمز سيوقف الرمز القديم. متابعة؟'))return;
+ let {data,error}=await sb.rpc('rotate_qr');
+ if(error){$('qr-msg').textContent='تعذر تغيير الرمز: '+error.message;return}
+ drawQR(data);showMsg($('qr-msg'),'تم تغيير الرمز، اطبعي الجديد',true);
+};
+
+/* ---------- daily log ---------- */
+async function loadLog(){
+ if(!$('log-date').value)$('log-date').value=today();
+ let d=$('log-date').value,t=$('log-type').value,rows;
+ try{rows=await fetchAll(()=>sb.from(CFG.ATT).select('*').eq(A.date,d).order(A.in))}catch(error){$('log-heading').textContent='تعذر تحميل السجل: '+error.message;return}
+ let dayOff=isOff(new Date(d+'T12:00:00'));
+ $('log-heading').textContent=$('log-type').selectedOptions[0].text+' - '+d;
+ if(t==='abs'){
+  let ids=new Set(rows.map(r=>r[A.user]));
+  $('log-head').innerHTML='<tr><th>الموظف</th><th>القسم</th><th>الحالة</th></tr>';
+  let list=dayOff?[]:people.filter(p=>p[P.role]==='employee'&&!ids.has(p[P.id]));
+  $('log-body').innerHTML=list.map(p=>`<tr><td>${esc(p[P.name])}</td><td>${esc(p[P.dept]||'')}</td><td>غائب</td></tr>`).join('')||`<tr><td colspan="3">${dayOff?'إجازة أسبوعية':'لا يوجد غياب'}</td></tr>`;
+ }else{
+  if(t==='late'){let seen=new Set();rows=rows.filter(r=>{if(seen.has(r[A.user]))return false;seen.add(r[A.user]);return late(r[A.in])})}
+  $('log-head').innerHTML='<tr><th>الموظف</th><th>حضور</th><th>انصراف</th><th>المدة</th></tr>';
+  $('log-body').innerHTML=rows.map(r=>`<tr><td>${esc(personName(r[A.user]))}</td><td>${time(r[A.in])}${lateBadge(r[A.in])}</td><td>${time(r[A.out])}${noOutBadge(r)}</td><td>${duration(r[A.in],r[A.out])}</td></tr>`).join('')||'<tr><td colspan="4">لا توجد بيانات</td></tr>';
+ }
+}
+$('log-date').onchange=$('log-type').onchange=loadLog;
+
+/* ---------- single employee report ---------- */
+function loadReport(){
+ let sel=$('report-person'),keep=sel.value;
+ sel.innerHTML=people.filter(p=>p[P.role]==='employee').map(p=>`<option value="${esc(p[P.id])}">${esc(p[P.name])}</option>`).join('');
+ if(keep&&[...sel.options].some(o=>o.value===keep))sel.value=keep;
+ if(!$('report-month').value)$('report-month').value=today().slice(0,7);
+ runReport();
+}
+async function runReport(){
+ let id=$('report-person').value,month=$('report-month').value;if(!id||!month)return;
+ let rows;try{rows=await fetchAll(()=>sb.from(CFG.ATT).select('*').eq(A.user,id).gte(A.date,month+'-01').lt(A.date,monthEnd(month)).order(A.in))}catch(error){$('report-heading').textContent='تعذر تحميل التقرير: '+error.message;return}
+ let first={};rows.forEach(r=>{if(!first[r[A.date]])first[r[A.date]]=r});
+ $('days').textContent=Object.keys(first).length;
+ $('late-days').textContent=Object.values(first).filter(r=>late(r[A.in])).length;
+ $('hours').textContent=Math.round(rows.reduce((n,r)=>n+minutes(r[A.in],r[A.out]),0)/6)/10;
+ $('report-heading').textContent=personName(id)+' - '+month;
+ $('report-body').innerHTML=rows.map(recordRow).join('')||'<tr><td colspan="4">لا توجد سجلات</td></tr>';
+}
+$('report-person').onchange=$('report-month').onchange=runReport;
+
+/* ---------- monthly report for all employees ---------- */
+function loadMonth(){if(!$('month-pick').value)$('month-pick').value=today().slice(0,7);runMonth()}
+async function runMonth(){
+ let month=$('month-pick').value;if(!month)return;
+ $('month-heading').textContent='التقرير الشهري - '+month;$('month-body').innerHTML='<tr><td colspan="6">جاري التحميل...</td></tr>';
+ let rows;try{rows=await fetchAll(()=>sb.from(CFG.ATT).select('*').gte(A.date,month+'-01').lt(A.date,monthEnd(month)).order(A.in))}catch(error){$('month-heading').textContent='تعذر تحميل التقرير: '+error.message;return}
+ let [y,m]=month.split('-').map(Number),last=new Date(y,m,0).getDate(),t=today(),work=0;
+ for(let d=1;d<=last;d++){let dt=new Date(y,m-1,d);if(today(dt)<=t&&!isOff(dt))work++}
+ let stat={};rows.forEach(r=>{let s=stat[r[A.user]]=stat[r[A.user]]||{first:{},min:0};if(!s.first[r[A.date]]||new Date(r[A.in])<new Date(s.first[r[A.date]]))s.first[r[A.date]]=r[A.in];s.min+=minutes(r[A.in],r[A.out])});
+ let out=people.filter(p=>p[P.role]==='employee').map(p=>{let s=stat[p[P.id]]||{first:{},min:0},days=Object.keys(s.first).length;
+  return {name:p[P.name]||'—',dept:p[P.dept]||'',days,late:Object.values(s.first).filter(late).length,abs:Math.max(0,work-days),hours:Math.round(s.min/6)/10}});
+ $('month-note').textContent='أيام العمل المحتسبة حتى اليوم: '+work+' (بدون الإجازة الأسبوعية) · بداية الدوام '+CFG.START;
+ $('month-body').innerHTML=out.map(o=>`<tr><td>${esc(o.name)}</td><td>${esc(o.dept)}</td><td class="num">${o.days}</td><td class="num">${o.late?`<span class="badge warn">${o.late}</span>`:0}</td><td class="num">${o.abs?`<span class="badge bad">${o.abs}</span>`:0}</td><td class="num">${o.hours}</td></tr>`).join('')||'<tr><td colspan="6">لا يوجد موظفون</td></tr>';
+}
+$('month-pick').onchange=runMonth;
+
+/* ---------- clock ---------- */
+setInterval(()=>{let d=new Date();$('time').textContent=`${pad(d.getHours())}:${pad(d.getMinutes())}:${pad(d.getSeconds())}`;$('date').textContent=d.toLocaleDateString('ar-EG-u-nu-latn',{weekday:'long',day:'numeric',month:'long',year:'numeric'})},1000);
+boot();
+</script></body></html>
